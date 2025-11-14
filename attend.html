@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>AttendX — PEARL SCHOOL OF LAW</title>
+  <style>
+    /* ============= THEME: gold + cream + burgundy ============= */
+    :root{
+      --burgundy:#7a1620;
+      --gold:#d4a017;
+      --cream:#fff7eb;
+      --card:#ffffff;
+      --muted:#6c6c6c;
+      --accent:#e9cf84;
+    }
+
+    *{box-sizing:border-box;font-family:Inter, "Segoe UI", Tahoma, sans-serif}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,var(--cream),#fff 60%);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    header{
+      text-align:center;
+      padding:28px 16px 10px;
+      background: linear-gradient(90deg,var(--burgundy),var(--gold));
+      color:#fff;
+      font-family:"Brush Script MT", "Lucida Calligraphy", cursive;
+      font-size:44px;
+      letter-spacing:1px;
+      box-shadow:0 6px 30px rgba(0,0,0,0.12);
+    }
+    header small{
+      display:block;
+      font-family:Inter, sans-serif;
+      font-size:15px;
+      color:#ffedcc;
+      margin-top:6px;
+    }
+
+    /* layout centers */
+    .center {
+      display:flex;align-items:center;justify-content:center;height:76vh;padding:18px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.06);
+      padding:22px;
+      width:380px;
+      max-width:95%;
+    }
+
+    input,select,textarea,button{
+      font-size:15px;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #eee;
+      width:100%;
+    }
+    button{background:var(--burgundy);color:#fff;border:none;cursor:pointer}
+    button:hover{background:var(--gold);color:#111}
+    .muted{color:var(--muted);font-size:13px}
+    .toggle-eye{position:relative;left:-36px;top:-42px;cursor:pointer;color:var(--muted)}
+
+    /* app shell */
+    #app{display:none}
+    .navbar{
+      display:flex;gap:12px;align-items:center;justify-content:center;
+      background:transparent;padding:12px 10px;border-bottom:1px solid rgba(0,0,0,0.05);
+    }
+    .nav-btn{background:transparent;border:none;padding:8px 12px;border-radius:8px;font-weight:700;color:var(--burgundy);cursor:pointer}
+    .nav-btn:hover{background:var(--accent);color:var(--burgundy)}
+
+    .page{display:none;padding:18px 12px}
+    .visible{display:block}
+
+    /* slider */
+    .slider{width:92%;max-width:960px;margin:12px auto;border-radius:14px;overflow:hidden;height:300px;box-shadow:0 8px 30px rgba(0,0,0,0.08)}
+    .slider img{width:100%;height:100%;object-fit:cover}
+
+    /* profile */
+    .profile-pic{width:150px;height:150px;border-radius:50%;object-fit:cover;border:5px solid var(--gold);display:block;margin:10px auto;box-shadow:0 8px 20px rgba(0,0,0,0.08)}
+    .centered{text-align:center}
+
+    /* tables */
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border:1px solid #f0e6d2;text-align:left;font-size:14px}
+    th{background:linear-gradient(90deg,var(--burgundy),var(--gold));color:#fff}
+
+    .notification{background:var(--gold);color:var(--burgundy);padding:10px;border-radius:10px;margin:8px 0}
+    .student-row{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;margin:8px 0;background:#fff}
+    .small-btn{padding:8px 12px;border-radius:8px;background:#fff;border:1px solid #eee;cursor:pointer}
+    .note{font-size:13px;color:var(--muted);margin-top:6px}
+
+    @media (max-width:800px){
+      header{font-size:34px}
+      .slider{height:180px}
+      .card{width:94%}
+      .profile-pic{width:120px;height:120px}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  PEARL SCHOOL OF LAW
+  <small>For the betterment of the future leaders</small>
+</header>
+
+<!-- LOGIN -->
+<div id="loginView" class="center">
+  <div class="card">
+    <h3 style="margin:0 0 8px;color:var(--burgundy)">Sign in to AttendX</h3>
+    <div class="muted" style="margin-bottom:12px">Use a default account for demo. Admin can manage students.</div>
+
+    <input id="email" placeholder="email (e.g. student1@stud.com)" autocomplete="off"/>
+    <div style="position:relative;margin-top:8px">
+      <input id="password" type="password" placeholder="password" />
+      <span class="toggle-eye" onclick="togglePassword()">👁</span>
+    </div>
+
+    <button style="margin-top:12px" onclick="handleLogin()">Login</button>
+    <div class="note" style="margin-top:12px">Default admin: <b>admin@admin.com</b> / admin123</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="navbar">
+    <button class="nav-btn" onclick="nav('home')">Home</button>
+    <button class="nav-btn" onclick="nav('profile')">Profile</button>
+    <button class="nav-btn" onclick="nav('reports')">Reports</button>
+    <button class="nav-btn" onclick="nav('lecturer')">Lecturer</button>
+    <button class="nav-btn" onclick="nav('admin')">Admin</button>
+    <button class="nav-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- HOME -->
+  <section id="home" class="page visible">
+    <div class="centered">
+      <div class="slider"><img id="slideImage" src="" alt="slides"></div>
+      <h2 style="color:var(--burgundy);margin:14px 0 6px">Welcome to Pearl School of Law</h2>
+      <p class="muted" style="max-width:900px;margin:6px auto">A center of legal excellence — blending rigorous academics, practical legal clinics, and leadership training. Use the menu to view profile, mark attendance, or manage students (if you are admin).</p>
+    </div>
+  </section>
+
+  <!-- PROFILE (students only see their profile and only their records) -->
+  <section id="profile" class="page">
+    <div class="centered">
+      <img id="profilePic" class="profile-pic" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=60" alt="profile" />
+      <h3 id="profileName">Name</h3>
+      <div class="muted" id="profileEmail">email</div>
+
+      <div style="margin-top:18px">
+        <div class="muted">Mark attendance (simulated QR or Fingerprint)</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+          <button onclick="studentMark('QR')">Scan QR</button>
+          <button onclick="studentMark('Fingerprint')">Fingerprint</button>
+        </div>
+        <div id="profileMsg" class="note"></div>
+      </div>
+
+      <div style="margin-top:16px;width:92%;max-width:720px">
+        <h4 style="margin-bottom:8px">Notifications</h4>
+        <div id="notifArea"><div class="muted">No notifications</div></div>
+      </div>
+
+      <div style="margin-top:18px;width:92%;max-width:720px">
+        <h4 style="margin-bottom:8px">Your Attendance (latest)</h4>
+        <table id="studentOwnTable"><tr><th>Date/Time</th><th>Method</th></tr></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORTS (role sensitive) -->
+  <section id="reports" class="page">
+    <div style="max-width:980px;margin:0 auto">
+      <h3 style="color:var(--burgundy)">Attendance Reports</h3>
+
+      <!-- student area -->
+      <div id="studentReportArea" style="display:none">
+        <div class="muted">You may view only your own attendance here.</div>
+        <table id="ownReportTable" style="margin-top:12px"><tr><th>Date/Time</th><th>Method</th></tr></table>
+      </div>
+
+      <!-- staff area -->
+      <div id="staffReportArea" style="display:none">
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <select id="reportStudentSelect"></select>
+          <button class="small-btn" onclick="renderStaffReport()">View</button>
+          <button class="small-btn" onclick="renderAllAggregate()">Show Aggregated</button>
+          <button class="small-btn" onclick="exportCSVForSelected()">Export CSV</button>
+        </div>
+        <div id="singleStudentReport" style="margin-top:12px"></div>
+        <div id="aggregateReport" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LECTURER -->
+  <section id="lecturer" class="page">
+    <div style="max-width:720px;margin:0 auto">
+      <h3 style="color:var(--burgundy)">Lecturer — Schedule a Class</h3>
+      <div class="muted">Add date/time/room — all students will receive notifications</div>
+      <div style="margin-top:12px">
+        <input id="classDate" placeholder="Date (YYYY-MM-DD)">
+        <input id="classTime" placeholder="Time (HH:MM)" style="margin-top:8px">
+        <input id="classRoom" placeholder="Room (e.g. B201)" style="margin-top:8px">
+        <button style="margin-top:10px" onclick="lecturerAddClass()">Add Class & Notify Students</button>
+        <div id="lecturerNote" class="note"></div>
+      </div>
+
+      <div style="margin-top:18px">
+        <h4>Upcoming Classes</h4>
+        <div id="classList" class="muted">No classes</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="page">
+    <div style="max-width:980px;margin:0 auto">
+      <h3 style="color:var(--burgundy)">Admin Panel — Manage Students</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+        <div style="flex:1;min-width:260px">
+          <div class="muted">Add student by full name. Email will be firstword@stud.com (unique). Default password: <b>stud123</b></div>
+          <input id="newStudentName" placeholder="Full name (e.g. JANE DOE)" style="margin-top:10px">
+          <button style="margin-top:8px" onclick="adminAddStudent()">Add Student</button>
+          <div class="note" id="adminAddNote"></div>
+        </div>
+
+        <div style="flex:1;min-width:320px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <label><input type="checkbox" id="showPasswords" onchange="renderAdminList()"> Show passwords</label>
+            <div class="muted" style="margin-left:auto">Reset a student's password below</div>
+          </div>
+          <div id="studentsContainer" style="margin-top:12px;max-height:420px;overflow:auto"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <h4>Attendance tallies (All students)</h4>
+        <div id="tallyArea" class="muted">No records yet</div>
+        <div style="margin-top:12px"><button class="small-btn" onclick="exportAllCSV()">Export All Attendance CSV</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+/* Preloaded users including the full student list you provided */
+const users = [
+  {role:'admin', name:'Admin User', email:'admin@admin.com', password:'admin123'},
+  {role:'lecturer', name:'Lecturer One', email:'lecturer1@lect.com', password:'lect123'},
+  {role:'student', name:'BEYAMBA DEUS', email:'beyamba@stud.com', password:'stud123'},
+  {role:'student', name:'KASULE BOSCO', email:'kasule@stud.com', password:'stud123'},
+  {role:'student', name:'NABACHWA JANEFRANCES', email:'nabachwa@stud.com', password:'stud123'},
+  {role:'student', name:'NAKATO MADINAH ALI', email:'nakato@stud.com', password:'stud123'},
+  {role:'student', name:'NAKAWEESI ESTHER', email:'nakaweesi@stud.com', password:'stud123'},
+  {role:'student', name:'NALUNGA ASSUMPTA', email:'nalunga@stud.com', password:'stud123'},
+  {role:'student', name:'NAMAGGA AMINAH TOMUSANGE', email:'namagga@stud.com', password:'stud123'},
+  {role:'student', name:'NAMAJWALA DAISY', email:'namajwala@stud.com', password:'stud123'},
+  {role:'student', name:'NAMAZZI JACKLINE', email:'namazzi@stud.com', password:'stud123'},
+  {role:'student', name:'NAMUTEBI CONSOLANTA', email:'namutebi@stud.com', password:'stud123'},
+  {role:'student', name:'NANNYONJO MARIA CABRINE', email:'nannyonjo@stud.com', password:'stud123'},
+  {role:'student', name:'NANTALE LETICIA HOPE', email:'nantale@stud.com', password:'stud123'},
+  {role:'student', name:'NAYIGA ANNET', email:'nayiga@stud.com', password:'stud123'},
+  {role:'student', name:'NNABYONGA EUSEBIA CM', email:'nnabyonga@stud.com', password:'stud123'}
+];
+
+/* runtime state */
+let currentUser = null;
+let attendanceRecords = []; // {name,email,method,time}
+let classes = [];          // {date,time,room,addedBy,addedAt}
+let notifications = {};    // email -> [{text,time}]
+
+/* initialize notifications mapping */
+users.filter(u=>u.role==='student').forEach(s => notifications[s.email] = []);
+
+/* helpers */
+const findUser = (email) => users.find(u => u.email.toLowerCase() === (email||'').toLowerCase());
+const nowStr = () => new Date().toLocaleString();
+
+/* --------------------- UI & Auth --------------------- */
+function togglePassword(){ const p = document.getElementById('password'); p.type = (p.type==='password')?'text':'password'; }
+
+function handleLogin(){
+  const email = (document.getElementById('email').value||'').trim().toLowerCase();
+  const pass  = (document.getElementById('password').value||'').trim();
+  const user = findUser(email);
+  if(!user || user.password !== pass){ alert('Invalid credentials'); return; }
+  currentUser = user;
+  // show app
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  nav('home');
+  renderForCurrent();
+  startSlider();
+}
+
+function logout(){
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginView').style.display = 'flex';
+  document.getElementById('email').value=''; document.getElementById('password').value='';
+}
+
+/* --------------------- Slider (Dashboard images) --------------------- */
+const slides = [
+  "https://images.unsplash.com/photo-1581090700227-1e37b190418e?auto=format&fit=crop&w=1400&q=60",
+  "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1400&q=60",
+  "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1400&q=60"
+];
+let slideIndex = 0, slideTimer = null;
+function startSlider(){
+  const img = document.getElementById('slideImage');
+  if(!img) return;
+  clearInterval(slideTimer);
+  img.src = slides[0];
+  slideIndex = 0;
+  slideTimer = setInterval(()=>{
+    slideIndex = (slideIndex+1)%slides.length;
+    img.src = slides[slideIndex];
+  },3600);
+}
+
+/* --------------------- Navigation & role-based rendering --------------------- */
+function nav(pageId){
+  // hide pages
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+  const el = document.getElementById(pageId);
+  if(!el) return;
+  el.classList.add('visible');
+
+  // gate certain pages
+  if(pageId==='lecturer' && currentUser && currentUser.role!=='lecturer' && currentUser.role!=='admin'){
+    alert('Lecturer access only'); nav('home'); return;
+  }
+  if(pageId==='admin' && currentUser && currentUser.role!=='admin'){ alert('Admin access only'); nav('home'); return; }
+
+  // run relevant renders
+  if(pageId==='profile') renderProfile();
+  if(pageId==='reports') renderReports();
+  if(pageId==='lecturer') renderLecturerView();
+  if(pageId==='admin') renderAdminList();
+}
+
+/* call after login to set up UI/permissions */
+function renderForCurrent(){
+  document.title = `AttendX — ${currentUser.name}`;
+  // automatically go to home (nav already does)
+  // render profile if student
+  if(currentUser.role==='student') {
+    // nothing extra now — profile renders on demand
+  }
+}
+
+/* --------------------- Student actions --------------------- */
+function studentMark(method){
+  if(!currentUser || currentUser.role !== 'student'){ alert('Only students can mark attendance here'); return; }
+  const t = nowStr();
+  attendanceRecords.push({name: currentUser.name, email: currentUser.email, method, time: t});
+  // add notification to that student
+  if(!notifications[currentUser.email]) notifications[currentUser.email]=[];
+  notifications[currentUser.email].push({text:`You marked attendance via ${method} at ${t}`, time: t});
+  // update profile view
+  document.getElementById('profileMsg').innerHTML = `<div class="note" style="color:green">Attendance recorded (${method}) at ${t}</div>`;
+  renderProfile();
+}
+
+/* render student profile */
+function renderProfile(){
+  if(!currentUser) return;
+  document.getElementById('profileName').innerText = currentUser.name;
+  document.getElementById('profileEmail').innerText = currentUser.email;
+
+  // notifications
+  const notifArea = document.getElementById('notifArea');
+  notifArea.innerHTML = '';
+  const list = notifications[currentUser.email] || [];
+  if(list.length === 0) notifArea.innerHTML = '<div class="muted">No notifications</div>';
+  else list.slice().reverse().forEach(n => {
+    const d = document.createElement('div'); d.className='notification'; d.textContent = n.text; notifArea.appendChild(d);
+  });
+
+  // own attendance
+  const t = document.getElementById('studentOwnTable');
+  t.innerHTML = '<tr><th>Date/Time</th><th>Method</th></tr>';
+  attendanceRecords.filter(r => r.email === currentUser.email).slice().reverse().forEach(r => {
+    const row = t.insertRow();
+    row.insertCell(0).textContent = r.time;
+    row.insertCell(1).textContent = r.method;
+  });
+}
+
+/* --------------------- Lecturer actions --------------------- */
+function lecturerAddClass(){
+  if(!currentUser || (currentUser.role !== 'lecturer' && currentUser.role !== 'admin')){ alert('Lecturer only'); return; }
+  const d = document.getElementById('classDate').value.trim();
+  const tm = document.getElementById('classTime').value.trim();
+  const room = document.getElementById('classRoom').value.trim();
+  if(!d || !tm || !room){ alert('Complete date, time and room'); return; }
+  const entry = {date:d, time:tm, room:room, addedBy:currentUser.name, addedAt: nowStr()};
+  classes.push(entry);
+  // notify all students
+  users.filter(u=>u.role==='student').forEach(s => {
+    if(!notifications[s.email]) notifications[s.email]=[];
+    notifications[s.email].push({text:`New class: ${d} ${tm} in ${room} (by ${currentUser.name})`, time: nowStr()});
+  });
+  document.getElementById('lecturerNote').innerText = `Class added and notifications sent: ${d} ${tm} @ ${room}`;
+  renderLecturerView();
+}
+
+function renderLecturerView(){
+  const el = document.getElementById('classList');
+  if(classes.length === 0) { el.innerHTML = '<div class="muted">No classes scheduled</div>'; return; }
+  let html = '<table><tr><th>Date</th><th>Time</th><th>Room</th><th>Added By</th></tr>';
+  classes.slice().reverse().forEach(c => html += `<tr><td>${c.date}</td><td>${c.time}</td><td>${c.room}</td><td>${c.addedBy}</td></tr>`);
+  html += '</table>';
+  el.innerHTML = html;
+}
+
+/* --------------------- Admin actions --------------------- */
+function adminAddStudent(){
+  if(!currentUser || currentUser.role !== 'admin'){ alert('Admins only'); return; }
+  const fullname = (document.getElementById('newStudentName').value||'').trim();
+  if(!fullname){ alert('Enter student full name'); return; }
+  const first = fullname.split(' ')[0].toLowerCase();
+  let base = first;
+  let email = `${base}@stud.com`;
+  let suffix = 1;
+  // ensure unique
+  while(findUser(email)){ email = `${base}${suffix}@stud.com`; suffix++; }
+  const newS = {role:'student', name:fullname, email:email, password:'stud123'};
+  users.push(newS);
+  notifications[email] = [];
+  document.getElementById('adminAddNote').innerText = `Added ${fullname} (${email}) with password stud123`;
+  document.getElementById('newStudentName').value = '';
+  renderAdminList();
+  renderReports(); // refresh selects
+}
+
+function renderAdminList(){
+  if(!currentUser || currentUser.role !== 'admin'){ return; }
+  const container = document.getElementById('studentsContainer');
+  container.innerHTML = '';
+  const showPwd = document.getElementById('showPasswords').checked;
+  users.filter(u => u.role === 'student').forEach(s => {
+    const key = s.email.replace(/[@.]/g,'_');
+    const pwdText = showPwd ? s.password : '••••••';
+    const node = document.createElement('div');
+    node.className = 'student-row';
+    node.innerHTML = `
+      <div style="flex:1">
+        <div><strong style="color:var(--burgundy)">${s.name}</strong></div>
+        <div class="muted">${s.email}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="muted">pwd: <span id="pwd_${key}">${pwdText}</span></div>
+        <input id="newpwd_${key}" placeholder="new pwd" style="width:120px"/>
+        <button class="small-btn" onclick="adminResetPwd('${key}')">Reset</button>
+      </div>`;
+    container.appendChild(node);
+  });
+  renderTallies();
+}
+
+function adminResetPwd(key){
+  const el = document.getElementById('newpwd_'+key);
+  const newpw = (el.value||'').trim();
+  if(!newpw){ alert('Enter a new password'); return; }
+  const target = users.find(u => u.email.replace(/[@.]/g,'_') === key);
+  if(!target){ alert('User not found'); return; }
+  target.password = newpw;
+  document.getElementById('adminAddNote').innerText = `Password for ${target.email} updated.`;
+  renderAdminList();
+}
+
+/* --------------------- Reports rendering (role-aware) --------------------- */
+function renderReports(){
+  if(!currentUser) return;
+  if(currentUser.role === 'student'){
+    document.getElementById('studentReportArea').style.display = 'block';
+    document.getElementById('staffReportArea').style.display = 'none';
+    const table = document.getElementById('ownReportTable');
+    table.innerHTML = '<tr><th>Date/Time</th><th>Method</th></tr>';
+    attendanceRecords.filter(r => r.email === currentUser.email).slice().reverse().forEach(r => {
+      const row = table.insertRow();
+      row.insertCell(0).textContent = r.time;
+      row.insertCell(1).textContent = r.method;
+    });
+  } else {
+    document.getElementById('studentReportArea').style.display = 'none';
+    document.getElementById('staffReportArea').style.display = 'block';
+    // fill select
+    const sel = document.getElementById('reportStudentSelect');
+    sel.innerHTML = '';
+    users.filter(u=>u.role==='student').forEach(s => {
+      const opt = document.createElement('option'); opt.value = s.email; opt.text = `${s.name} — ${s.email}`; sel.appendChild(opt);
+    });
+    document.getElementById('singleStudentReport').innerHTML = '';
+    document.getElementById('aggregateReport').innerHTML = '';
+  }
+}
+
+function renderStaffReport(){
+  const email = document.getElementById('reportStudentSelect').value;
+  const person = findUser(email);
+  const recs = attendanceRecords.filter(r => r.email === email);
+  let html = `<h4>${person.name} (${email})</h4>`;
+  if(recs.length === 0) html += '<div class="muted">No attendance records</div>';
+  else {
+    html += '<table><tr><th>Time</th><th>Method</th></tr>';
+    recs.slice().reverse().forEach(r=> html += `<tr><td>${r.time}</td><td>${r.method}</td></tr>`);
+    html += '</table>';
+  }
+  document.getElementById('singleStudentReport').innerHTML = html;
+}
+
+function renderAllAggregate(){
+  let html = '<h4>Aggregated Attendance</h4><table><tr><th>Student</th><th>Email</th><th>Total Present</th><th>Last Present</th></tr>';
+  users.filter(u=>u.role==='student').forEach(s=>{
+    const recs = attendanceRecords.filter(r=>r.email===s.email);
+    const total = recs.length;
+    const last = total ? recs[recs.length-1].time : '—';
+    html += `<tr><td>${s.name}</td><td>${s.email}</td><td>${total}</td><td>${last}</td></tr>`;
+  });
+  html += '</table>';
+  document.getElementById('aggregateReport').innerHTML = html;
+}
+
+/* tally area used in admin panel */
+function renderTallies(){
+  let html = '<table><tr><th>Student</th><th>Email</th><th>Present Count</th></tr>';
+  users.filter(u=>u.role==='student').forEach(s=>{
+    const count = attendanceRecords.filter(r=>r.email===s.email).length;
+    html += `<tr><td>${s.name}</td><td>${s.email}</td><td>${count}</td></tr>`;
+  });
+  html += '</table>';
+  document.getElementById('tallyArea').innerHTML = html;
+}
+
+/* --------------------- CSV export (simple) --------------------- */
+function exportCSVForSelected(){
+  const email = document.getElementById('reportStudentSelect').value;
+  if(!email) return alert('Select a student first');
+  const recs = attendanceRecords.filter(r=>r.email===email);
+  if(recs.length===0) return alert('No records for this student');
+  const rows = [['Name','Email','Method','Time'], ...recs.map(r=>[r.name,r.email,r.method,r.time])];
+  downloadCSV(rows, `${email.replace(/[@.]/g,'_')}_attendance.csv`);
+}
+
+function exportAllCSV(){
+  if(attendanceRecords.length===0) return alert('No attendance records to export');
+  const rows = [['Name','Email','Method','Time'], ...attendanceRecords.map(r=>[r.name,r.email,r.method,r.time])];
+  downloadCSV(rows, `all_attendance.csv`);
+}
+
+function downloadCSV(rows, filename){
+  const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.style.display='none';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* --------------------- Utilities used by admin/others --------------------- */
+function findUser(email){ return users.find(u => u.email.toLowerCase() === (email||'').toLowerCase()); }
+
+/* ====================== Page wiring (exposed small helpers) ====================== */
+window.nav = nav;
+window.handleLogin = handleLogin;
+window.togglePassword = togglePassword;
+window.studentMark = studentMark;
+window.lecturerAddClass = lecturerAddClass;
+window.adminAddStudent = adminAddStudent;
+window.renderStaffReport = renderStaffReport;
+window.renderAllAggregate = renderAllAggregate;
+window.exportCSVForSelected = exportCSVForSelected;
+window.exportAllCSV = exportAllCSV;
+
+/* small on-page behavior wiring */
+document.getElementById('showPasswords') && document.getElementById('showPasswords').addEventListener('change', ()=>renderAdminList());
+
+/* ensure when Admin page is shown the list is built */
+function renderAdminList(){
+  renderAdminListInternal();
+}
+function renderAdminListInternal(){
+  if(!currentUser || currentUser.role!=='admin') return;
+  const container = document.getElementById('studentsContainer');
+  container.innerHTML = '';
+  const showPwd = document.getElementById('showPasswords').checked;
+  users.filter(u => u.role === 'student').forEach(s => {
+    const key = s.email.replace(/[@.]/g,'_');
+    const pwdText = showPwd ? s.password : '••••••';
+    const block = document.createElement('div');
+    block.className = 'student-row';
+    block.innerHTML = `
+      <div style="flex:1">
+        <div><strong style="color:var(--burgundy)">${s.name}</strong></div>
+        <div class="muted">${s.email}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="muted">pwd: <span id="pwd_${key}">${pwdText}</span></div>
+        <input id="newpwd_${key}" placeholder="new pwd" style="width:120px"/>
+        <button class="small-btn" onclick="adminResetPwd('${key}')">Reset</button>
+      </div>`;
+    container.appendChild(block);
+  });
+  renderTallies();
+}
+
+/* admin reset wrapper */
+function adminResetPwd(key){
+  const input = document.getElementById('newpwd_'+key);
+  const newPw = (input.value||'').trim();
+  if(!newPw) return alert('Enter a new password');
+  const target = users.find(u => u.email.replace(/[@.]/g,'_') === key);
+  if(!target) return alert('User not found');
+  target.password = newPw;
+  document.getElementById('adminAddNote').innerText = `Password for ${target.email} updated.`;
+  renderAdminListInternal();
+}
+
+/* small convenience to keep rendering consistent when nav('admin') called */
+function renderAdminList(){
+  renderAdminListInternal();
+}
+
+/* final safety: when nav events occur ensure pages refresh appropriately */
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click', ()=> {
+  // adapt visible areas when nav is clicked
+  const text = b.innerText.toLowerCase();
+  if(text==='profile') renderProfile();
+  if(text==='reports') renderReports();
+  if(text==='lecturer') renderLecturerView();
+  if(text==='admin') renderAdminListInternal();
+}));
+
+/* initial slide image default */
+document.getElementById('slideImage').src = slides[0];
+
+</script>
+</body>
+</html>
